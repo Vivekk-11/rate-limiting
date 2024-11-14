@@ -26,7 +26,7 @@ app.post("/reset-password", (req, res) => {
             .json({ message: "Email, OTP, and new password are required!" });
     }
     if (otpStore[email] === otp) {
-        console.log(`Password for ${email} is not ${newPassword}`);
+        console.log(`Password for ${email} is ${newPassword}`);
         delete otpStore[email];
         res.status(200).json({ message: "Password has been reset successfully" });
     }
