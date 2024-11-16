@@ -1,9 +1,10 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
 
 const app = express();
-
 app.use(express.json());
+app.use(cors());
 
 const otpStore: Record<string, string> = {};
 
@@ -38,8 +39,20 @@ app.post("/generate-otp", otpLimiter, (req, res) => {
   res.status(200).json({ message: "OTP generated and logged" });
 });
 
-app.post("/reset-password", passwordResetLimiter, (req, res) => {
-  const { email, otp, newPassword } = req.body;
+app.post("/reset-password", passwordResetLimiter, async (req, res) => {
+  const { email, otp, newPassword, token } = req.body;
+
+  const formData = new FormData();
+  formData.append("secret", "0x4AAAAAAA0JZI2hRnP8OaOYXk8iWq6ZKV0");
+  formData.append("response", token);
+
+  const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+  const result = await fetch(url, {
+    body: formData,
+    method: "POST",
+  });
+
+  console.log(await result.json(), "RESULT");
 
   if (!email || !otp || !newPassword) {
     res
